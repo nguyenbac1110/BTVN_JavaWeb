@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.SQLException"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,7 +18,7 @@
         
         <form action="display" method="POST">
             <label>
-                <input type="radio" name="chucnang" value="tangdan" checked>
+                <input type="radio" name="chucnang" value="tangdan">
                 Sắp xếp số lượng tăng dần
             </label>
             <br>
@@ -31,5 +33,34 @@
             </label>
             <br><br>
             <button type="submit">Sắp xếp</button>
+            
+            <table border="1">
+            <tr>
+                <th>Mã môn</th>
+                <th>Tên môn</th>
+                <th>Số tiết</th>
+            </tr>
+            <%
+                ResultSet resultSet = (ResultSet) request.getAttribute("rs");
+                if (resultSet != null) {
+                    try {
+                        while (resultSet.next()) {
+                            String mamon = resultSet.getString("mamon");
+                            String tenmonhoc = resultSet.getString("tenmonhoc");
+                            int sotiet = resultSet.getInt("sotiet");
+            %>
+            <tr>
+                <td><%= mamon %></td>
+                <td><%= tenmonhoc %></td>
+                <td><%= sotiet %></td>
+            </tr>
+            <%
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            %>
+            </table>
     </body>
 </html>

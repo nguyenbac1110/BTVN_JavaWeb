@@ -62,7 +62,16 @@ KetNoi k = new KetNoi();
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //processRequest(request, response);
-         request.getRequestDispatcher("/View/display.jsp").forward(request, response);
+         try {
+            k.getConnection();
+            String sql = "SELECT * FROM monhoc";
+            PreparedStatement stm = k.con.prepareStatement(sql);
+            ResultSet rs = stm.executeQuery();
+            request.setAttribute("rs", rs); 
+            request.getRequestDispatcher("/View/display.jsp").forward(request, response);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -81,13 +90,15 @@ KetNoi k = new KetNoi();
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         String chucnang = request.getParameter("chucnang");
+        ResultSet rs = null;
         try {
             k.getConnection();
             switch (chucnang) {
-                case "tangdan" -> sapxeptangdan(response); 
-                case "giamdan" -> sapxepgiamdan(response);          
-                case "macdinh" -> trovemacdinh(response);
+                case "tangdan" -> sapxeptangdan(request); 
+                case "giamdan" -> sapxepgiamdan(request);          
+                case "macdinh" -> trovemacdinh(request);
             }
+             request.getRequestDispatcher("/View/display.jsp").forward(request, response);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -104,62 +115,25 @@ KetNoi k = new KetNoi();
         return "Short description";
     }// </editor-fold>
 
-    private void sapxeptangdan(HttpServletResponse response) throws SQLException{
+    private void sapxeptangdan(HttpServletRequest request) throws SQLException {
         String sql = "select * from monhoc order by sotiet asc";
         PreparedStatement stm = k.con.prepareStatement(sql);
         ResultSet rs = stm.executeQuery();
-        try {
-        getAll(response,rs);
-    } catch (IOException ex) {
-        Logger.getLogger(display.class.getName()).log(Level.SEVERE, null, ex);
-    }
-          
+        request.setAttribute("rs", rs); 
     }
 
-    private void sapxepgiamdan(HttpServletResponse response) throws SQLException{
+    private void sapxepgiamdan(HttpServletRequest request) throws SQLException {
         String sql = "select * from monhoc order by sotiet desc";
         PreparedStatement stm = k.con.prepareStatement(sql);
         ResultSet rs = stm.executeQuery();
-        try {
-        getAll(response,rs);
-    } catch (IOException ex) {
-        Logger.getLogger(display.class.getName()).log(Level.SEVERE, null, ex);
-    }
+        request.setAttribute("rs", rs); 
     }
 
-    private void trovemacdinh(HttpServletResponse response) throws SQLException{
+    private void trovemacdinh(HttpServletRequest request) throws SQLException {
         String sql = "select * from monhoc";
-         PreparedStatement stm = k.con.prepareStatement(sql);
+        PreparedStatement stm = k.con.prepareStatement(sql);
         ResultSet rs = stm.executeQuery();
-        try {
-            getAll(response,rs);
-        } catch (IOException ex) {
-            Logger.getLogger(display.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void getAll(HttpServletResponse response,ResultSet rs) throws IOException {
-            PrintWriter out = response.getWriter();
-            response.setContentType("text/html");
-            out.print("<table border = '1'>");
-            out.print("<tr><th>Mã môn</th><th>Tên môn học</th><th>Số tiết</th></tr>");
-            try {
-                while(rs.next()){
-                    String ma = rs.getString(1);
-                    String ten = rs.getString(2);
-                    String sotiet = rs.getString(3);
-                    out.println("<tr>");
-                    out.println("<td>"+ ma +"</td>");
-                    out.println("<td>"+ ten +"</td>");
-                    out.println("<td>"+ sotiet +"</td>");
-                    out.println("<tr>");
-                    out.println("</br>");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(display.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            out.print("</table>");
-        
+        request.setAttribute("rs", rs);
     }
 
 }
